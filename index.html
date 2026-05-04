@@ -366,7 +366,7 @@
         'lavender': { name: 'Lavanta', color: '#7C4DFF' }
     };
 
-    const YOUTUBE_ICON_SVG = `<svg class="youtube-icon" viewBox="0 0 24 24"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
+    const YOUTUBE_ICON_SVG = `<svg class="youtube-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
     
     let allChannels = [], epgData = {}, currentChannelList = [], hls, baseChannelList = [];
     let currentChannelIndex = -1, activeGroupName = '';
@@ -377,9 +377,98 @@
     
     function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
 
-    /* ✅ FIX EKLENDİ (DEĞİŞTİRİLMEDİ, SADECE EKLENDİ) */
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+    async function fetchEPG() {
+      try {
+        const res = await fetch(epgUrl);
+        if (!res.ok) throw new Error();
+        const xml = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xml, "text/xml");
+        const progs = doc.querySelectorAll("programme");
+        const now = new Date();
 
+        for (const p of progs) {
+          const chan = p.getAttribute("channel");
+          const start = new Date();
+          const stop = new Date();
+          if (now >= start && now <= stop) epgData[chan] = p.querySelector("title")?.textContent || "";
+        }
+      } catch (error) {
+        console.error("EPG Hata");
+
+        baseChannelList = [];
+        allChannels = [];
+        listGroups();
+
+        G_UI.channels.innerHTML = '<p style="padding:10px;color:#aaa;">Kanal listesi yüklenemedi.</p>';
+      }
+    }
+
+    function listGroups() {
+      const groups = ['Favorilerim', 'Tüm Kanallar'];
+      G_UI.groups.innerHTML = "";
+
+      groups.forEach(g => {
+        const el = document.createElement("div");
+        el.className = "group";
+        el.textContent = g;
+        el.onclick = () => listChannels(g);
+        G_UI.groups.appendChild(el);
+      });
+
+      listChannels('Tüm Kanallar');
+    }
+
+    function listChannels(group) {
+      G_UI.channels.innerHTML = "";
+      currentChannelList = allChannels;
+
+      currentChannelList.forEach((c, idx) => {
+        const el = document.createElement("div");
+        el.className = "channel";
+        el.innerHTML = `<div class="channel-name-text">${c.name}</div>`;
+
+        el.onclick = () => playChannelInPreview(idx);
+        G_UI.channels.appendChild(el);
+      });
+    }
+
+    function playChannelInPreview(localIdx) {
+      const channel = currentChannelList[localIdx];
+      if (!channel) return;
+      currentlyPlayingChannel = channel;
+      isPlaying = true;
+    }
+
+    window.addEventListener("load", async () => {
+      try {
+        const response = await fetch('channels.json?v=' + Date.now());
+        const channelData = await response.json();
+
+        baseChannelList = channelData.channels;
+        allChannels = baseChannelList;
+
+        await fetchEPG();
+        listGroups();
+
+      } catch (error) {
+        console.error('Kanal listesi yüklenemedi:', error);
+
+        baseChannelList = [];
+        allChannels = [];
+
+        listGroups();
+
+        G_UI.channels.innerHTML = '<p style="padding:10px;color:#aaa;">Kanal listesi (channels.json) yüklenemedi.</p>';
+      }
+    });
   </script>
+
+  <div id="offline-overlay">
+        <div class="offline-icon">📡</div>
+        <h2>BAĞLANTI YOK</h2>
+        <p>TV yayınına devam etmek için lütfen internet bağlantınızı kontrol edin.</p>
+        <button id="offline-retry-btn" onclick="window.location.reload()">TEKRAR DENE</button>
+    </div>
 </body>
 </html>
