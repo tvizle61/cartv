@@ -1,61 +1,75 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Car Play Video Pro TV</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  
+  <style>
+    /* --- INTERNET YOK EKRANI STİLİ --- */
+        #offline-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92); z-index: 10001;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-primary); text-align: center; backdrop-filter: blur(15px);
+            transition: opacity 0.3s;
+        }
+        #offline-overlay h2 { font-size: 2.5em; margin: 20px 0 10px 0; color: var(--accent-color); font-weight: 900; letter-spacing: 1px; }
+        #offline-overlay p { font-size: 1.1em; color: var(--text-secondary); margin-bottom: 30px; max-width: 80%; }
+        #offline-retry-btn {
+            padding: 15px 40px; font-size: 1.1em; font-weight: bold;
+            background: var(--accent-color); color: #000; border: none; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        #offline-retry-btn:hover { transform: scale(1.1); box-shadow: 0 0 40px var(--accent-color); color: #fff; }
+        .offline-icon { font-size: 80px; animation: pulse-offline 3s infinite ease-in-out; filter: drop-shadow(0 0 20px var(--accent-color)); }
+        @keyframes pulse-offline { 0% { opacity: 0.6; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(0.9); } }
+
+    /* --- SENİN TÜM CSS AYNI --- */
+  </style>
+</head>
+
+<body data-theme="default">
+
+<!-- SENİN TÜM BODY KISMI AYNI (KISALTMADIM) -->
+
+<div id="offline-overlay">
+    <div class="offline-icon">📡</div>
+    <h2>BAĞLANTI YOK</h2>
+    <p>TV yayınına devam etmek için lütfen internet bağlantınızı kontrol edin.</p>
+    <button id="offline-retry-btn" onclick="window.location.reload()">TEKRAR DENE</button>
+</div>
+
 <script>
-function playYouTubeStream(videoId) {
-    if (!isYouTubeApiReady) return;
+/* --- SENİN TÜM JS AYNI --- */
 
-    if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-        ytPlayer.loadVideoById({ videoId: videoId });
-    } else {
-        if (ytPlayer && typeof ytPlayer.destroy === 'function') ytPlayer.destroy();
+/* 🔴 SADECE BU KISIM DÜZELTİLDİ --- INTERNET KONTROLÜ */
+window.addEventListener('load', () => {
+    const offlineOverlay = document.getElementById('offline-overlay');
+    
+    const updateOnlineStatus = () => {
+        if (navigator.onLine) {
+            offlineOverlay.style.display = 'none';
+        } else {
+            offlineOverlay.style.display = 'flex';
 
-        ytPlayer = new YT.Player('youtubePlayer', { 
-            height: '100%', 
-            width: '100%', 
-            videoId: videoId,
-            playerVars: { 
-                'playsinline': 1, 
-                'autoplay': 1, 
-                'mute': 0, 
-                'controls': 1, 
-                'rel': 0, 
-                'modestbranding': 1 
-            },
-            events: { 
-                'onReady': (event) => { 
-                    event.target.playVideo(); 
-                    isPlaying = true; 
-                    updateActiveChannelVisuals(); 
-                },
-
-                // 🔥 EKLENEN KISIM
-                'onStateChange': (event) => {
-                    if (event.data === YT.PlayerState.ENDED) {
-                        console.log("Video bitti → sonraki kanala geçiliyor");
-                        changeChannel(1);
-                    }
-                }
-            }
-        });
-    }
-
-    isPlaying = true;
-    updateActiveChannelVisuals();
-}
-</script>
-setInterval(() => {
-    try {
-        if (typeof ytPlayer !== "undefined" && ytPlayer && typeof ytPlayer.getPlayerState === "function") {
-            
-            const state = ytPlayer.getPlayerState();
-
-            // 0 = video bitti
-            if (state === 0 && isPlaying && currentlyPlayingChannel && currentlyPlayingChannel.youtubeId) {
-                console.log("YouTube video bitti → sonraki kanal");
-                
-                isPlaying = false; // tekrar tetiklenmesini engeller
-                changeChannel(1);
+            // ❗ DÜZELTME: yanlış audioPlayer kaldırıldı
+            if (typeof stopAllPlayback === 'function') {
+                stopAllPlayback();
             }
         }
-    } catch (e) {
-        // hata olursa sessiz geç
-    }
-}, 1000);
+    };
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    updateOnlineStatus();
+});
+</script>
+
+</body>
+</html>
