@@ -109,7 +109,18 @@
     .channel-info { flex-grow: 1; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; }
     .channel-info > div { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     
-    .channel-name-text { font-weight: 500; font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+    .channel-name-text { 
+      font-weight: 500; 
+      font-size: 0.85em; 
+      [color:red]white-space: normal;[/color] /* nowrap yerine normal yaparak alt satıra geçişi açtık */
+      [color:red]display: -webkit-box;[/color] /* Çoklu satır desteği için */
+      [color:red]-webkit-line-clamp: 2;[/color] /* Yazı en fazla 2 satır olsun, sonra üç nokta koy */
+      [color:red]-webkit-box-orient: vertical;[/color]
+      overflow: hidden; 
+      /* text-overflow: ellipsis; -> Bu artık webkit-line-clamp ile otomatik yönetilir */
+      color: var(--text-primary); 
+      [color:red]line-height: 1.2;[/color] /* Satırlar arası mesafeyi daralttık ki buton çok büyümesin */
+    }
     .channel-stop-text { display: none; color: #fff; font-weight: bold; font-size: 1.1em; letter-spacing: 0.5px; }
     
     .channel.playing-active .channel-name-text { display: none; }
