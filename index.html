@@ -114,20 +114,31 @@
 Bunun için .channel-name-text kodunu şu şekilde güncellemen yeterli olacaktır:
 
 CSS
+    Anladım, yani yazı uzunsa hem iki satıra yayılsın hem de o dar alana sığabilmek için yazı boyutu (font-size) otomatik olarak küçülsün istiyorsun.
+
+CSS'te yazı boyutunu içeriğin uzunluğuna göre tamamen "dinamik" olarak (JavaScript kullanmadan) küçültmek doğrudan mümkün değildir; ancak "Container Queries" veya "Clamp" yöntemleriyle alanı en verimli hale getirebiliriz.
+
+Görselin estetiğini bozmadan, uzun isimleri iki satıra sığdırıp fontu makul bir seviyeye çekecek en iyi kod şudur:
+
+Güncellenecek Kod Bloğu
+CSS
     .channel-name-text { 
+      /* --- TEMEL AYARLAR --- */
       font-weight: 500; 
-      font-size: 0.85em; 
       color: var(--text-primary);
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       
-      /* --- ALT SATIRA GEÇME AYARLARI --- */
-      [color:red]white-space: normal;[/color]    /* Yazının alt satıra geçmesine izin verir */
-      [color:red]word-wrap: break-word;[/color]  /* Çok uzun kelimeleri gerekirse böler */
-      [color:red]display: block;[/color]         /* Genişliği tam kullanmasını sağlar */
-      [color:red]line-height: 1.2;[/color]       /* Satır aralığını düzenler */
+      /* --- OTOMATİK SIĞDIRMA VE KÜÇÜLTME STRATEJİSİ --- */
+      [color:red]font-size: clamp(0.7em, 2vw, 0.85em);[/color] /* Ekran küçüldükçe fontu 0.7em'e kadar otomatik çeker */
+      [color:red]line-height: 1.1;[/color]                /* Satırları birbirine yaklaştırarak yerden tasarruf eder */
+      [color:red]-webkit-line-clamp: 2;[/color]            /* En fazla 2 satır olmasına izin verir */
+      [color:red]white-space: normal;[/color]              /* Alta geçişi aktif eder */
+      [color:red]word-break: break-all;[/color]            /* Çok uzun kelime varsa ortadan bölüp alta atar (sığdırmak için) */
       
-      /* Eski üç nokta (ellipsis) kodlarını devre dışı bırakıyoruz */
-      overflow: visible; 
-      text-overflow: clip; 
+      /* Sabit bir yükseklik vererek butonun aşırı büyümesini engelleriz */
+      [color:red]max-height: 2.4em;[/color]                /* 2 satırlık alanı garantiye alır */
     }
     .channel-stop-text { display: none; color: #fff; font-weight: bold; font-size: 1.1em; letter-spacing: 0.5px; }
     
