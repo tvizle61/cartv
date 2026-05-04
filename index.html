@@ -109,17 +109,25 @@
     .channel-info { flex-grow: 1; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; }
     .channel-info > div { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     
+    Elbette, tam olarak istediğin "akıllı" davranışı şu şekilde kurgulayabiliriz: Eğer yazı satıra sığacak kadar kısaysa tek satırda kalır, eğer sığmıyorsa alt satıra geçer ve kanal kutusu da yazıya göre kendini otomatik olarak genişletir.
+
+Bunun için .channel-name-text kodunu şu şekilde güncellemen yeterli olacaktır:
+
+CSS
     .channel-name-text { 
       font-weight: 500; 
       font-size: 0.85em; 
-      [color:red]white-space: normal;[/color] /* nowrap yerine normal yaparak alt satıra geçişi açtık */
-      [color:red]display: -webkit-box;[/color] /* Çoklu satır desteği için */
-      [color:red]-webkit-line-clamp: 2;[/color] /* Yazı en fazla 2 satır olsun, sonra üç nokta koy */
-      [color:red]-webkit-box-orient: vertical;[/color]
-      overflow: hidden; 
-      /* text-overflow: ellipsis; -> Bu artık webkit-line-clamp ile otomatik yönetilir */
-      color: var(--text-primary); 
-      [color:red]line-height: 1.2;[/color] /* Satırlar arası mesafeyi daralttık ki buton çok büyümesin */
+      color: var(--text-primary);
+      
+      /* --- ALT SATIRA GEÇME AYARLARI --- */
+      [color:red]white-space: normal;[/color]    /* Yazının alt satıra geçmesine izin verir */
+      [color:red]word-wrap: break-word;[/color]  /* Çok uzun kelimeleri gerekirse böler */
+      [color:red]display: block;[/color]         /* Genişliği tam kullanmasını sağlar */
+      [color:red]line-height: 1.2;[/color]       /* Satır aralığını düzenler */
+      
+      /* Eski üç nokta (ellipsis) kodlarını devre dışı bırakıyoruz */
+      overflow: visible; 
+      text-overflow: clip; 
     }
     .channel-stop-text { display: none; color: #fff; font-weight: bold; font-size: 1.1em; letter-spacing: 0.5px; }
     
