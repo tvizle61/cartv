@@ -452,15 +452,7 @@
       "epgId": ""
     },
    
-    
         {
-      "name": "2. EURO D",
-      "url": "https://thema-vivekanald-rakuten.amagi.tv/playlist.m3u8",
-      "logo": "https://i.ibb.co/jMQTJmh/euro-d.png",
-      "group": "Ulusal",
-      "epgId": ""
-    },
-    {
       "name": "7. KANAL 7",
       "url": "https://kanal7-live.daioncdn.net/kanal7/kanal7_1080p.m3u8",
       "logo": "https://i.ibb.co/DPVDgvqn/Ads-z-tasar-m-1.png",
