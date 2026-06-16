@@ -281,14 +281,14 @@
       "logo": "https://raw.githubusercontent.com/ghokun/tv/main/bin/logo/NOWTV.tr.png",
       "group": "Ulusal",
       "epgId": "NOWTV.tr",
-      "youtubeId": "pqq5c6k70kk"
+      "url": "https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8"
     },
     {
       "name": "3.NTV",
       "logo": "https://raw.githubusercontent.com/ghokun/tv/main/bin/logo/NTV.tr.png",
       "group": "Ulusal",
       "epgId": "NTV.tr",
-      "url": "http://87.121.104.29:1796/ntvyt/stream.m3u8"
+      "youtubeId": "pqq5c6k70kk"
     },
     {
       "name": "Number 1 TV",
