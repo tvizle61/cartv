@@ -30,7 +30,7 @@
         @keyframes pulse-offline { 0% { opacity: 0.6; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(0.9); } }
     :root {
         --player-height: 35px; 
-        --category-bar-height: 30px; 
+        --category-bar-height: 45px; 
         --video-controls-height: 50px;
     }
 
@@ -247,10 +247,10 @@ CSS
         scrollbar-width: thin; scrollbar-color: var(--accent-color) var(--bg-secondary);
     }
     .group {
-        padding: 0 25px; cursor: pointer; background: transparent;
+        padding: 0 35px; cursor: pointer; background: transparent;
         border-right: 1px solid var(--border-color);
         line-height: var(--category-bar-height); white-space: nowrap; flex-shrink: 0;
-        transition: 0.2s; font-weight: 600; font-size: 15px; color: var(--text-secondary);
+        transition: 0.2s; font-weight: 700; font-size: 18px; color: var(--text-secondary);
     }
     .group:hover { background: var(--bg-hover); color: var(--text-primary); }
     .group.active { background: var(--accent-color); color: #fff; }
