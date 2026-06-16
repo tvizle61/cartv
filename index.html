@@ -39,7 +39,7 @@
     /* 1. Varsayılan (Piano Black - Klasik) */
     [data-theme='default'] { --bg-primary: #000000; --bg-secondary: #141414; --bg-tertiary: #1f1f1f; --bg-hover: #333333; --border-color: #333; --accent-color: #007AFF; --accent-color-darker: #0056b3; --text-primary: #ffffff; --text-secondary: #a1a1a1; --epg-color: #64b5f6; --favorite-color: #ffd700; }
     
-    /* 2. Kutup Beyazı (Açık Tema - Beğendiğin) */
+    /* 2. Kutup Beyazı (Açık Tema) */
     [data-theme='polar']   { --bg-primary: #f2f4f8; --bg-secondary: #ffffff; --bg-tertiary: #e6e9f0; --bg-hover: #d1d9e6; --border-color: #cdd5e0; --accent-color: #2c3e50; --accent-color-darker: #1a252f; --text-primary: #1a1a1a; --text-secondary: #5e6b7c; --epg-color: #2980b9; --favorite-color: #f39c12; }
 
     /* 3. Yarış Yeşili (Racing Green - Neon Vurgulu) */
@@ -90,12 +90,12 @@
 
     .channel {
       display: flex; 
-      align-items: center; /* İkonlar ve yazı dikeyde ortalı kalsın */
-      gap: 10px; /* Elemanlar arası mesafeyi daralttık */
+      align-items: center; 
+      gap: 10px; 
       background: var(--bg-tertiary);
       border-radius: 6px; 
-      padding: [color:red]6px 10px[/color]; /* Dikeyde daha ince, yatayda derli toplu */
-      min-height: 45px; /* Standart bir yükseklik belirledik */
+      padding: 6px 10px; 
+      min-height: 45px; 
       border: none;
       border-left: 4px solid transparent;
       transition: all 0.2s;
@@ -107,35 +107,22 @@
     [data-theme='polar'] .channel.playing-active { color: #fff; }
     [data-theme='polar'] .channel.playing-active .channel-name-text { color: #fff; }
 
-    .channel img { width: 30px; height: 30                   px; object-fit: contain; flex-shrink: 0; }
+    .channel img { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
     .channel-info { flex-grow: 1; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; }
     .channel-info > div { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     
-    Elbette, tam olarak istediğin "akıllı" davranışı şu şekilde kurgulayabiliriz: Eğer yazı satıra sığacak kadar kısaysa tek satırda kalır, eğer sığmıyorsa alt satıra geçer ve kanal kutusu da yazıya göre kendini otomatik olarak genişletir.
-
-Bunun için .channel-name-text kodunu şu şekilde güncellemen yeterli olacaktır:
-
-CSS
-    Anladım, yani yazı uzunsa hem iki satıra yayılsın hem de o dar alana sığabilmek için yazı boyutu (font-size) otomatik olarak küçülsün istiyorsun.
-
-CSS'te yazı boyutunu içeriğin uzunluğuna göre tamamen "dinamik" olarak (JavaScript kullanmadan) küçültmek doğrudan mümkün değildir; ancak "Container Queries" veya "Clamp" yöntemleriyle alanı en verimli hale getirebiliriz.
-
-Görselin estetiğini bozmadan, uzun isimleri iki satıra sığdırıp fontu makul bir seviyeye çekecek en iyi kod şudur:
-
-Güncellenecek Kod Bloğu
-CSS
-   .channel-name-text { 
+    .channel-name-text { 
       font-weight: 500; 
       color: var(--text-primary);
-      [color:red]font-size: 0.80rem;[/color] /* Okunabilir ama kompakt boyut */
-      [color:red]line-height: 1.2;[/color]
+      font-size: 0.80rem; 
+      line-height: 1.2;
       display: -webkit-box;
-      [color:red]-webkit-line-clamp: 2;[/color] /* Maksimum 2 satır */
+      -webkit-line-clamp: 2; 
       -webkit-box-orient: vertical;
       overflow: hidden;
-      [color:red]white-space: normal;[/color] /* Alta geçiş açık */
-      [color:red]word-break: normal;[/color] /* Kelimeleri saçma sapan yerlerden bölmez */
-      flex-grow: 1; /* Yazının tüm alanı kullanmasını sağlar */
+      white-space: normal; 
+      word-break: normal; 
+      flex-grow: 1; 
     }
     .channel-stop-text { display: none; color: #fff; font-weight: bold; font-size: 1.1em; letter-spacing: 0.5px; }
     
@@ -319,6 +306,14 @@ CSS
   </style>
 </head>
 <body data-theme="default">
+
+  <div id="offline-overlay">
+      <div class="offline-icon">📡</div>
+      <h2>BAĞLANTI KESİLDİ</h2>
+      <p>Lütfen aracınızın veya cihazınızın internet bağlantısını kontrol edin.</p>
+      <button id="offline-retry-btn" onclick="window.location.reload()">Yeniden Dene</button>
+  </div>
+
   <div id="app">
     <div id="main">
       <div id="channels"></div>
@@ -353,7 +348,7 @@ CSS
 
   <div id="groups"></div>
 
-<div id="playerContainer">
+  <div id="playerContainer">
     <div class="marquee-container">
         <div class="marquee-text">B Y D --- İSMET </div>
     </div>
@@ -395,9 +390,9 @@ CSS
 
     const YOUTUBE_ICON_SVG = `<svg class="youtube-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
     
-    let allChannels = [], epgData = {}, currentChannelList = [], hls, baseChannelList = [];
+    let allChannels = [], epgData = {}, currentChannelList = [], hls = null, baseChannelList = [];
     let currentChannelIndex = -1, activeGroupName = '';
-    let ytPlayer;
+    let ytPlayer = null;
     let isYouTubeApiReady = false;
     let isPlaying = false; 
     let currentlyPlayingChannel = null;
@@ -437,7 +432,6 @@ CSS
                 events: { 
                     'onReady': (event) => { event.target.playVideo(); isPlaying = true; updateActiveChannelVisuals(); },
                     'onStateChange': (event) => {
-                        // Video BİTTİĞİNDE (YT.PlayerState.ENDED = 0)
                         if (event.data === 0) {
                             changeChannel(1);
                         }
@@ -509,9 +503,6 @@ CSS
             document.body.prepend(warningEl);
         }
     }
-    
-    window.addEventListener('online', () => showConnectionWarning(true));
-    window.addEventListener('offline', () => showConnectionWarning(false));
     
     async function fetchEPG() {
       try {
@@ -594,6 +585,7 @@ CSS
         const channelElements = document.querySelectorAll('#channels .channel');
         channelElements.forEach((el, idx) => {
             const channelData = currentChannelList[idx];
+            if(!channelData) return;
             const isThisChannelPlaying = isPlaying && currentlyPlayingChannel && (currentlyPlayingChannel.name === channelData.name);
             if (isThisChannelPlaying) {
                 el.classList.add('playing-active');
@@ -660,77 +652,125 @@ CSS
         }
     }
 
-    async function playStream(videoElement, url) {
+    /* --- ENTEGRE EDİLEN GARANTİLİ VE TAM TOLEANSLI YENİ AKIŞ SİSTEMİ --- */
+    function playStream(videoElement, url) {
+        // Eski yayını tamamen hafızadan silip playerı temizle
         stopStream(videoElement, hls);
-        videoElement.onended = () => { changeChannel(1); };
+        
+        return new Promise((resolve) => {
+            videoElement.onended = () => { changeChannel(1); };
 
-        // HTTP linkleri HTTPS sayfada engellendiği için kullanıcıyı konsolda uyar/temizle
-        if (window.location.protocol === 'https:' && url.startsWith('http://')) {
-            console.warn("Mixed Content Uyarısı: HTTPS site üzerinden HTTP yayın oynatılamıyor olabilir. Link: ", url);
-        }
-
-        if (Hls.isSupported()) { 
-            // Tüm m3u8 varyasyonlarını (canlı/VOD/şifreli) açabilmesi için player konfigürasyonu optimize edildi
-            hls = new Hls({
-                maxMaxBufferLength: 15,       // Donmaları engellemek için buffer artırıldı
-                enableWorker: true,           // Arka plan işlemcisi aktif (Car Play akıcılığı için)
-                lowLatencyMode: true,         // Canlı yayın gecikmesini azaltır
-                checkNextSegmentDuration: true,
-                // CORS ve Kimlik doğrulama hatalarını esnetmek için:
-                xhrSetup: function (xhr, url) {
-                    xhr.withCredentials = false; 
-                }
-            }); 
-            
-            hls.loadSource(url); 
-            hls.attachMedia(videoElement); 
-
-            // Hata Yönetimi Ekranı: Yayın anlık koparsa veya kodek hatası verirse playerı kurtarır
-            hls.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.log("Ağ hatası, yayın yeniden yükleniyor...");
-                            hls.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.log("Medya/Kodek hatası, kurtarılmaya çalışılıyor...");
-                            hls.recoverMediaError();
-                            break;
-                        default:
-                            console.error("Yayın açma hatası:", data);
-                            break;
+            // Tarayıcı Hls.js destekliyorsa (Android, PC ve genel multimedya sistemleri)
+            if (Hls.isSupported()) { 
+                hls = new Hls({
+                    maxMaxBufferLength: 15,
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    checkNextSegmentDuration: true,
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false;
                     }
-                }
-            });
+                }); 
+                
+                hls.loadSource(url); 
+                hls.attachMedia(videoElement); 
 
-        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            // Hls.js desteklemeyen ama yerel HLS (M3U8) desteği olan cihazlar (Örn: Apple cihazları) için yedek plan
-            videoElement.src = url;
-        }
-        
-        videoElement.muted = false; 
-        videoElement.volume = 1.0;
-        
-        // Bazı tarayıcılar ilk yüklemede user-interaction (dokunma) olmadan oynatmayı reddedebilir, bunu esnetiyoruz
-        try { 
-            await videoElement.play(); 
-        } catch (err) { 
-            console.log("Otomatik oynatma engellendi, ses kapatılarak deneniyor...");
-            videoElement.muted = true; // Fallback: Sessiz modda zorla oynat
-            try { await videoElement.play(); } catch(e) { console.error("Yerel oynatıcı hatası: ", e); }
-        }
-        return hls;
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoElement.muted = false;
+                    videoElement.volume = 1.0;
+                    videoElement.play().catch(() => {
+                        // Tarayıcı ilk etkileşimde sese izin vermezse sessize alarak kurtar
+                        videoElement.muted = true;
+                        videoElement.play().catch(e => console.error("Oynatma başarısız:", e));
+                    });
+                });
+
+                // Canlı yayında kopma veya donma olursa playerın kilitlenmesini çözen otomatik kurtarma döngüsü
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.log("Ağ hatası algılandı, yayın tazeleniyor...");
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log("Medya uyumsuzluğu algılandı, kodek sıfırlanıyor...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                console.error("Fatal hata kodu, akış durduruluyor.");
+                                stopAllPlayback();
+                                break;
+                        }
+                    }
+                });
+                
+                resolve(hls);
+
+            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                // Tarayıcı Hls.js desteklemiyor ama yerel oynatıcısı varsa (Örn: Apple iOS / Safari tabanlı araç cihazları)
+                videoElement.src = url;
+                videoElement.addEventListener('loadedmetadata', function() {
+                    videoElement.muted = false;
+                    videoElement.volume = 1.0;
+                    videoElement.play().catch(() => {
+                        videoElement.muted = true;
+                        videoElement.play().catch(e => console.error("Native player başlatılamadı:", e));
+                    });
+                });
+                resolve(null);
+            }
+        });
     }
 
-    // İnternet Kontrolü
+    function stopStream(videoElement, hlsInstance) {
+        if (videoElement) {
+            videoElement.pause(); 
+            videoElement.removeAttribute("src");
+            videoElement.onended = null;
+            try { videoElement.load(); } catch (e) {}
+        }
+        if (hlsInstance) {
+            hlsInstance.destroy();
+        }
+        hls = null;
+    }
+    
+    // Uygulama Başlangıç Yönetimi
+    window.addEventListener("load", async () => {
+      createThemeSelector(); 
+      applyTheme(localStorage.getItem('iptvTheme') || 'default');
+      loadSavedZoom(); 
+      
+      try {
+        const response = await fetch('channels.json?v=' + new Date().getTime());
+        if (!response.ok) throw new Error();
+        const channelData = await response.json();
+        
+        baseChannelList = channelData.channels.filter(c => (c.url || c.youtubeId) && c.name);
+        const allChannelsGroup = JSON.parse(JSON.stringify(baseChannelList));
+        allChannelsGroup.forEach(channel => { channel.group = 'Tüm Kanallar'; });
+        
+        allChannels = [...baseChannelList, ...allChannelsGroup];
+        await fetchEPG();
+        listGroups();
+      } catch (error) {
+        G_UI.channels.innerHTML = '<p style="padding:10px;color:#aaa;">Kanal listesi yüklenemedi.</p>';
+      }
+      
+      document.getElementById('previewArea').addEventListener('dblclick', toggleFullscreen);
+    });
+
+    // İnternet Kontrol Döngüsü
     window.addEventListener('load', () => {
         const offlineOverlay = document.getElementById('offline-overlay');
         const updateOnlineStatus = () => {
             if (navigator.onLine) {
-                offlineOverlay.style.display = 'none';
+                if(offlineOverlay) offlineOverlay.style.display = 'none';
+                showConnectionWarning(true);
             } else {
-                offlineOverlay.style.display = 'flex';
+                if(offlineOverlay) offlineOverlay.style.display = 'flex';
+                showConnectionWarning(false);
                 stopAllPlayback();
             }
         };
@@ -739,3 +779,5 @@ CSS
         updateOnlineStatus();
     });
 </script>
+</body>
+</html>
