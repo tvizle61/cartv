@@ -182,7 +182,7 @@ CSS
     #previewPlaceholder h1 { font-size: 2.2em; color: var(--text-primary); margin-bottom: 10px; }
     #previewPlaceholder p { font-size: 1.1em; }
 
-    /* --- SABİT KONTROL BARI --- */
+   /* --- SABİT KONTROL BARI --- */
     #videoControlsBar {
         height: var(--video-controls-height);
         background: var(--bg-secondary);
@@ -193,8 +193,22 @@ CSS
         gap: 30px;
         padding: 0 15px; 
         flex-shrink: 0; 
-        z-index: 20; 
+        z-index: 2147483647; /* Tam ekranda kesinlikle en üstte kalması için maksimum z-index değeri */
         box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* VİDEO CONTAINER TAM EKRAN OLDUĞUNDA BUTON BARININ ALACAĞI YENİ POZİSYON */
+    #videoContainer:fullscreen #videoControlsBar,
+    #videoContainer:-webkit-full-screen #videoControlsBar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background: rgba(15, 15, 15, 0.85); /* Arkadaki yayını kesmemesi için hafif şeffaf premium siyah */
+        backdrop-filter: blur(8px); /* Arkadaki videoyu estetik olarak bulandırır */
+        -webkit-backdrop-filter: blur(8px);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .player-nav-btn {
@@ -206,7 +220,9 @@ CSS
         cursor: pointer;
         font-weight: bold;
         font-size: 16px;
-        display: flex; align-items: center; gap: 10px;
+        display: flex; 
+        align-items: center; 
+        gap: 10px;
         transition: all 0.2s;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
