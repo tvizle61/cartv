@@ -254,13 +254,7 @@
       "epgId": "ATV.HD",
       "url": "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_480p.m3u8"
     },
-    {
-      "name": "9.ATV HD 3",
-      "logo": "https://raw.githubusercontent.com/ghokun/tv/main/bin/logo/ATV.tr.png",
-      "group": "Ulusal",
-      "epgId": "ATV.HD",
-      "url": "http://89.187.191.41/ATV-HD-TR/video.m3u8"
-    },
+
     {
       "name": "7.Kanal 7",
       "logo": "https://raw.githubusercontent.com/ghokun/tv/main/bin/logo/Kanal7.tr.png",
@@ -322,7 +316,7 @@
       "logo": "https://raw.githubusercontent.com/ghokun/tv/main/bin/logo/StarTV.tr.png",
       "group": "Ulusal",
       "epgId": "StarTV.tr",
-      "youtubeId": "L9bI3_301fQ"
+      "youtubeId": "82O6yOy_XwE"
     },
     {
       "name": "TRT Çocuk",
@@ -457,28 +451,9 @@
       "group": "Ulusal",
       "epgId": ""
     },
-    {
-      "name": "2. KANAL D",
-      "url": "https://ackaxsqacw.turknet.ercdn.net/ozfkfbbjba/kanald/kanald_1080p.m3u8",
-      "logo": "https://i.ibb.co/hf2mSz5/kanal-d.png",
-      "group": "Ulusal",
-      "epgId": ""
-    },
-    {
-      "name": "4. STAR TV",
-      "url": "https://piped-api.kavin.rocks/live/L9bI3_301fQ",
-      "logo": "https://i.ibb.co/hY3Z8zx/star-tv.png",
-      "group": "Ulusal",
-      "epgId": ""
-    },
-    {
-      "name": "5. SHOW TV",
-      "url": "https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/showtv/showtv.m3u8",
-      "logo": "https://i.ibb.co/Rv0rWhZ/show.png",
-      "group": "Ulusal",
-      "epgId": ""
-    },
-    {
+   
+    
+        {
       "name": "2. EURO D",
       "url": "https://thema-vivekanald-rakuten.amagi.tv/playlist.m3u8",
       "logo": "https://i.ibb.co/jMQTJmh/euro-d.png",
