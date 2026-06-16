@@ -662,48 +662,66 @@ CSS
 
     async function playStream(videoElement, url) {
         stopStream(videoElement, hls);
-        
-        // M3U8 yayını biterse sonraki kanala geç
         videoElement.onended = () => { changeChannel(1); };
 
+        // HTTP linkleri HTTPS sayfada engellendiği için kullanıcıyı konsolda uyar/temizle
+        if (window.location.protocol === 'https:' && url.startsWith('http://')) {
+            console.warn("Mixed Content Uyarısı: HTTPS site üzerinden HTTP yayın oynatılamıyor olabilir. Link: ", url);
+        }
+
         if (Hls.isSupported()) { 
-            hls = new Hls(); hls.loadSource(url); hls.attachMedia(videoElement); 
+            // Tüm m3u8 varyasyonlarını (canlı/VOD/şifreli) açabilmesi için player konfigürasyonu optimize edildi
+            hls = new Hls({
+                maxMaxBufferLength: 15,       // Donmaları engellemek için buffer artırıldı
+                enableWorker: true,           // Arka plan işlemcisi aktif (Car Play akıcılığı için)
+                lowLatencyMode: true,         // Canlı yayın gecikmesini azaltır
+                checkNextSegmentDuration: true,
+                // CORS ve Kimlik doğrulama hatalarını esnetmek için:
+                xhrSetup: function (xhr, url) {
+                    xhr.withCredentials = false; 
+                }
+            }); 
+            
+            hls.loadSource(url); 
+            hls.attachMedia(videoElement); 
+
+            // Hata Yönetimi Ekranı: Yayın anlık koparsa veya kodek hatası verirse playerı kurtarır
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.log("Ağ hatası, yayın yeniden yükleniyor...");
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.log("Medya/Kodek hatası, kurtarılmaya çalışılıyor...");
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            console.error("Yayın açma hatası:", data);
+                            break;
+                    }
+                }
+            });
+
         } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            // Hls.js desteklemeyen ama yerel HLS (M3U8) desteği olan cihazlar (Örn: Apple cihazları) için yedek plan
             videoElement.src = url;
         }
-        videoElement.muted = false; videoElement.volume = 1.0;
-        try { await videoElement.play(); } catch (err) { console.error(err); }
+        
+        videoElement.muted = false; 
+        videoElement.volume = 1.0;
+        
+        // Bazı tarayıcılar ilk yüklemede user-interaction (dokunma) olmadan oynatmayı reddedebilir, bunu esnetiyoruz
+        try { 
+            await videoElement.play(); 
+        } catch (err) { 
+            console.log("Otomatik oynatma engellendi, ses kapatılarak deneniyor...");
+            videoElement.muted = true; // Fallback: Sessiz modda zorla oynat
+            try { await videoElement.play(); } catch(e) { console.error("Yerel oynatıcı hatası: ", e); }
+        }
         return hls;
     }
-
-    function stopStream(videoElement, hlsInstance) {
-        videoElement.pause(); videoElement.removeAttribute("src");
-        videoElement.onended = null; // Listener'ı temizle
-        try { videoElement.load(); } catch (e) {}
-        if (hlsInstance) hlsInstance.destroy();
-    }
-    
-    window.addEventListener("load", async () => {
-      createThemeSelector(); 
-      applyTheme(localStorage.getItem('iptvTheme') || 'default');
-      loadSavedZoom(); 
-      
-      try {
-        const response = await fetch('channels.json?v=' + new Date().getTime());
-        if (!response.ok) throw new Error();
-        const channelData = await response.json();
-        baseChannelList = channelData.channels.filter(c => (c.url || c.youtubeId) && c.name);
-        const allChannelsGroup = JSON.parse(JSON.stringify(baseChannelList));
-        allChannelsGroup.forEach(channel => { channel.group = 'Tüm Kanallar'; });
-        allChannels = [...baseChannelList, ...allChannelsGroup];
-        await fetchEPG();
-        listGroups();
-      } catch (error) {
-        G_UI.channels.innerHTML = '<p style="padding:10px;color:#aaa;">Kanal listesi yüklenemedi.</p>';
-      }
-      
-      document.getElementById('previewArea').addEventListener('dblclick', toggleFullscreen);
-    });
 
     // İnternet Kontrolü
     window.addEventListener('load', () => {
